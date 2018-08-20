@@ -21,6 +21,7 @@
           <div class="indicator elapsed">{{minutesToString(computer.elapsedTime)}}</div>
           <div class="indicator remaining">{{minutesToString(computer.remainTime)}}</div>
           <div class="indicator dueAmount">{{(computer.dueAmount > 0) ? computer.dueAmount.toFixed(3) : '0.000'}}</div>
+          <div class="indicator" v-bind:class="{'lds-dual-ring': !computer.isTimeStopped()}"></div>
         </div>
         <div class="summary">
           <span>

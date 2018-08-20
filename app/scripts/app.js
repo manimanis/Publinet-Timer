@@ -86,7 +86,7 @@ function stringToMinutes(str) {
 
 function stringToTimestamp(str) {
   var minutes = stringToMinutes(str);
-  if (!minutes) {
+  if (minutes == null) {
     return null;
   }
   var ts = Date.now();
