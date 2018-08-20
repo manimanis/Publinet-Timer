@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Publinet Timer</title>
+
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/all.min.css">
+  <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
+</head>
+
+<body>
+
+  <div id="content">
+    <template v-for="(computer, index) in computers">
+      <div class="pc">
+        <div class="indicators">
+          <div class="indicator elapsed">{{minutesToString(computer.elapsedTime)}}</div>
+          <div class="indicator remaining">{{minutesToString(computer.remainTime)}}</div>
+          <div class="indicator dueAmount">{{computer.dueAmount.toFixed(3)}}</div>
+        </div>
+        <div class="summary">
+          <span>
+            <a href="#" @click.prevent="setVisibleDetailsIndex(index)"><i class="fas fa-edit"></i></a>
+          </span>
+          <span>{{computer.computer_name}}</span>
+          <span class="grow">{{computer.getStartTimeAsString()}}</span>
+          <span>-</span>
+          <span class="grow">{{computer.getEndTimeAsString()}}</span>
+          <span>{{(!computer.isPaid()) ? 'NP' : 'P'}}</span>
+
+        </div>
+
+        <div class="pc-details" v-if="visibleDetailsIndex === index">
+          <form action="">
+            <div class="row">
+              <div class="column-4">
+                <label for="computerName">Poste</label>
+                <input type="text" name="computerName" id="computerName" v-model="computer.computer_name">
+              </div>
+              <div class="column-4">
+                <label for="startTime">Début</label>
+                <input type="text" name="startTime" id="startTime" v-bind:value="computer.getStartTimeAsString()" @blur="startTimeChanged(computer, event)">
+              </div>
+
+              <div class="column-4">
+                <label for="reservedTime">Temps</label>
+                <input type="text" name="reservedTime" id="reservedTime" v-bind:value="minutesToString(computer.reservedTime)" @blur="reservedTimeChanged(computer, event)">
+              </div>
+
+              <div class="column-4">
+                <label for="endTime">Fin</label>
+                <input type="text" name="endTime" id="endTime" v-bind:value="computer.getEndTimeAsString()" @blur="endTimeChanged(computer, event)">
+              </div>
+
+              <div class="column-3">
+                <label for="elapsedTime">Ecoulé</label>
+                <input type="text" name="elapsedTime" id="elapsedTime" v-bind:value="minutesToString(computer.elapsedTime)" disabled>
+              </div>
+
+              <div class="column-3">
+                <label for="remainTime">Restant</label>
+                <input type="text" name="remainTime" id="remainTime" v-bind:value="minutesToString(computer.remainTime)" v-bind:class="{'warning': computer.remainTime < 0}"
+                  disabled>
+              </div>
+
+              <div class="column-3">
+                <label for="supplementTime">Supplémentaire</label>
+                <input type="text" name="supplementTime" id="supplementTime" v-bind:value="minutesToString((computer.remainTime < 0) ? -computer.remainTime : 0)"
+                  v-bind:class="{'warning': computer.remainTime < 0}" disabled>
+              </div>
+
+              <div class="column-3">
+                <label for="montantService">Prix Service</label>
+                <input type="number" name="montantService" id="montantService" v-bind:value="computer.servicePrice.toFixed(3)" disabled>
+              </div>
+
+              <div class="column-3">
+                <label for="montantPaye">Montant Payé</label>
+                <input type="number" name="montantPaye" id="montantPaye" v-bind:value="computer.paidAmount.toFixed(3)" @blur="setPaidAmount(event, computer)">
+              </div>
+
+              <div class="column-3">
+                <label for="montantDu">Montant Restant</label>
+                <input type="number" name="montantDu" id="montantDu" v-bind:value="computer.dueAmount.toFixed(3)" v-bind:class="{'warning': computer.dueAmount > 0}"
+                  disabled>
+              </div>
+
+              <div class="column-4">
+                <label for="prixHeure">Prix 15mn</label>
+                <input type="number" name="prixHeure" id="prixHeure" v-bind:value="computer.quartersPrices[1].toFixed(3)" @blur="changedPrice(event, computer, 1)">
+              </div>
+
+              <div class="column-4">
+                <label for="prixHeure">Prix 30mn</label>
+                <input type="number" name="prixHeure" id="prixHeure" v-bind:value="computer.quartersPrices[2].toFixed(3)" @blur="changedPrice(event, computer, 2)">
+              </div>
+
+              <div class="column-4">
+                <label for="prixHeure">Prix 45mn</label>
+                <input type="number" name="prixHeure" id="prixHeure" v-bind:value="computer.quartersPrices[3].toFixed(3)" @blur="changedPrice(event, computer, 3)">
+              </div>
+
+              <div class="column-4">
+                <label for="prixHeure">Prix/heure</label>
+                <input type="number" name="prixHeure" id="prixHeure" v-bind:value="computer.quartersPrices[4].toFixed(3)" @blur="changedPrice(event, computer, 4)">
+              </div>
+            </div>
+
+            <div>
+              <a href="#" class="btn dark" v-if="!computer.isTimeStopped()" @click="stopTime(index)">
+                <i class="fas fa-stopwatch"></i> Arrêter...
+              </a>
+              <a href="#" class="btn dark" v-else @click="continueTime(index)"><i class="fas fa-stopwatch"></i> Continuer...</a>
+            </div>
+          </form>
+        </div>
+
+
+      </div>
+
+
+    </template>
+
+    <div class="pc">
+      <button @click.prevent="createNew()">Nouveau...</button>
+    </div>
+  </div>
+
+  <div id="modal" class="modal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <span class="close" @click="cancel()">&times;</span>
+        <h2>{{title}}</h2>
+      </div>
+      <div class="modal-content" v-html="content"></div>
+      <div class="modal-footer">
+        <button @click.prevent="accept()">{{btnOkLabel}}</button>
+        <button @click.prevent="cancel()">{{btnCancelLabel}}</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="scripts/vue.min.js"></script>
+  <script src="scripts/jquery.min.js"></script>
+  <script src="scripts/app.js"></script>
+  <script>
+    var prices = [0.0, 0.300, 0.500, 0.800, 1.000];
+    var tempsPostes = new Vue({
+      el: '#content',
+      data: {
+        visibleDetailsIndex: -1,
+        computers: []
+      },
+      mounted: function () {
+        this.timer();
+      },
+      methods: {
+        timer: function () {
+          this.setCurrentTime();
+          setTimeout(this.timer.bind(this), 1000);
+        },
+        setCurrentTime: function () {
+          for (var i = 0; i < this.computers.length; i++) {
+            var computer = this.computers[i];
+            computer.setCurrentTime(Date.now());
+          }
+        },
+        deleteComputer: function (index) {
+          var thisObj = this;
+          var computer = this.computers[index];
+
+          dialog.title = 'Supprimer une affectation';
+          dialog.content = `<p>Vous allez supprimer l'affectation du poste suivant :</p>
+<p class="summary">
+  <span>${computer.computer_name}</span>
+  <span class="grow">${computer.getStartTimeAsString()}</span>
+  <span>-</span>
+  <span class="grow">${computer.getEndTimeAsString()}</span>
+  <span class="fixed-size">${(!computer.isPaid()) ? 'NP' : 'P'}</span>
+</p>
+<p>Etes-vous sûr de vouloir continuer ?</p>`;
+          dialog.btnOkLabel = 'Supprimer';
+
+          dialog.show(computer, function () {
+            if (thisObj.visibleDetailsIndex == index) {
+              thisObj.visibleDetailsIndex = -1;
+            }
+            thisObj.computers.splice(index, 1);
+            thisObj.progressBars.splice(index, 1);
+          });
+        },
+        stopTime: function (index) {
+          var thisObj = this;
+          var computer = this.computers[index];
+
+          dialog.title = 'Arrêter le temps';
+          dialog.content = `<p>Vous allez arrêter le temps du poste suivant :</p>
+<p class="summary">
+  <span>${computer.computer_name}</span>
+  <span class="grow">${computer.getStartTimeAsString()}</span>
+  <span>-</span>
+  <span class="grow">${computer.getEndTimeAsString()}</span>
+  <span class="fixed-size">${(!computer.isPaid()) ? 'NP' : 'P'}</span>
+</p>
+<p>Etes-vous sûr de vouloir arrêter ce temps ?</p>`;
+          dialog.btnOkLabel = 'Arrêter';
+
+          dialog.show(computer, function () {
+            computer.setStopTime(Date.now());
+          });
+        },
+        continueTime: function (index) {
+          var thisObj = this;
+          var computer = this.computers[index];
+
+          dialog.title = 'Continuer un temps';
+          dialog.content = `<p>Vous allez continuer le temps du poste suivant :</p>
+<p class="summary">
+  <span>${computer.computer_name}</span>
+  <span class="grow">${computer.getStartTimeAsString()}</span>
+  <span>-</span>
+  <span class="grow">${computer.getEndTimeAsString()}</span>
+  <span class="fixed-size">${(!computer.isPaid()) ? 'NP' : 'P'}</span>
+</p>
+<p>Etes-vous sûr de vouloir continuer ce temps ?</p>`;
+          dialog.btnOkLabel = 'Continuer';
+
+          dialog.show(computer, function () {
+            computer.setStopTime(null);
+          });
+        },
+        createNew: function () {
+          var computer = new ComputerTime({
+            computer_name: 'P?',
+            startTime: Date.now(),
+            reservedTime: 30,
+            quartersPrices: prices.map(price => price),
+            paidAmount: 0.0
+          });
+          this.computers.push(computer);
+          this.visibleDetailsIndex = this.computers.length - 1;
+        },
+        startTimeChanged: function (computer, event) {
+          var newValue = event.target.value;
+          var timeStamp = stringToTimestamp(newValue);
+          if (timeStamp == null) {
+            return;
+          }
+          computer.setStartTime(timeStamp);
+        },
+        endTimeChanged: function (computer, event) {
+          var newValue = event.target.value;
+          var timeStamp = stringToTimestamp(newValue);
+          if (timeStamp == null) {
+            return;
+          }
+          computer.setEndTime(timeStamp);
+        },
+        reservedTimeChanged: function (computer, event) {
+          var newValue = event.target.value;
+          var minutes = stringToMinutes(newValue);
+          if (minutes == null) {
+            return;
+          }
+          computer.setReservedTime(minutes);
+        },
+        setVisibleDetailsIndex: function (index) {
+          if (this.visibleDetailsIndex == index) {
+            this.visibleDetailsIndex = -1;
+          } else {
+            this.visibleDetailsIndex = index;
+          }
+        },
+        changedPrice: function (event, computer, index) {
+          var newValue = event.target.value;
+          newValue = parseFloat(newValue.replace(',', '.'));
+          if (isNaN(newValue)) {
+            return;
+          }
+          computer.quartersPrices[index] = newValue;
+          computer.calcServicePrice();
+        },
+        setPaidAmount: function (event, computer) {
+          var newValue = event.target.value;
+          newValue = parseFloat(newValue.replace(',', '.'));
+          if (isNaN(newValue)) {
+            return;
+          }
+          computer.setPaidAmount(newValue);
+        }
+      }
+    });
+
+    var dialog = new Vue({
+      el: '#modal',
+      data: {
+        title: '',
+        content: '',
+        btnOkLabel: 'OK',
+        btnCancelLabel: 'Annuler'
+      },
+      mounted: function () {
+        var thisObj = this;
+        // When the user clicks anywhere outside of the modal, close it
+        window.onclick = function (event) {
+          if (event.target == thisObj.$el) {
+            thisObj.cancel();
+          }
+        }
+      },
+      methods: {
+        show: function (computer, callbackOK, callbackCancel) {
+          this.computer = computer;
+          this.callbackOK = callbackOK || function () { };
+          this.callbackCancel = callbackCancel || function () { };
+          $('#' + this.$el.id).show();
+        },
+        close: function () {
+          $('#' + this.$el.id).hide();
+        },
+        accept: function () {
+          this.close();
+          this.callbackOK();
+        },
+        cancel: function () {
+          this.close();
+          this.callbackCancel();
+        }
+      }
+    });
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,391 @@
+body {
+  font-family: "Mont serrat", sans-serif;
+  font-size: 11pt;
+  margin: 0;
+  padding: 0;
+}
+
+#content {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.pc {
+  display: block;
+  width: calc(100% - 2em);
+  min-width: 270px;
+  padding: 0.5em;
+  margin: 0.5em 0.5em 0;
+  border: #89bdd3 solid 2px;
+  background-color: #e3e3e3;
+  border-radius: 1em;
+}
+
+.pc:last-of-type {
+  margin-bottom: 0.5em;
+}
+
+.pc h1 {
+  text-align: center;
+  margin: 0;
+  background-color: #c9c9c9;
+  color: #0088c2;
+  border-radius: 0.25em;
+}
+
+.pc .time {
+  text-align: center;
+  padding: 0.5em;
+  font-size: 14pt;
+  font-weight: bold;
+  flex-grow: 1;
+}
+
+.pc .tab-control .tab {
+  background-color: #c9c9c9;
+  border-radius: 0 0 8px 8px;
+  border-top: 1px solid #666;
+  display: none;
+}
+
+.pc .tab-control .tab:first-of-type {
+  display: block;
+}
+
+.pc .content {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.pc .elapsed-time, .pc .remain-time, .pc .reserved-time {
+  width: calc((100% - 56px) / 3);
+  background-color: #0088c2;
+  color: #e3e3e3;
+}
+
+.pc .elapsed-time, .pc .remain-time, .pc .reserved-time {
+  text-align: center;
+  font-size: 16pt;
+  border-radius: 8px;
+  padding: 8px;
+}
+
+.pc .elapsed-time, .pc .reserved-time {
+  margin-right: 4px;
+}
+
+.pc .reserved-time::before, .pc .elapsed-time::before, .pc .remain-time::before {
+  display: block;
+  position: relative;
+  left: -8px;
+  top: -8px;
+  width: calc(100% + 6px);
+  font-size: 8pt;
+  font-weight: bold;
+  line-height: 1.5em;
+  padding: 4px;
+  border: 1px solid #0088c2;
+  background-color: #9ad3de;
+  color: #025a80;
+  border-radius: 8px 8px 0 0;
+}
+
+.pc .reserved-time::before {
+  content: "Réservé";
+}
+
+.pc .elapsed-time::before {
+  content: "Ecoulé";
+}
+
+.pc .remain-time::before {
+  content: "Restant";
+}
+
+.pc .times .title, .pc .money .title {
+  width: 100%;
+  padding: 4px 0;
+  text-align: center;
+  font-size: 8pt;
+  font-weight: bolder;
+}
+
+.pc .money .service_price, .pc .money .paid_amount, .pc .money .due_amount, .pc .money .is_paid, .pc .money .hour_price {
+  width: calc((100% - 40px) / 3);
+  padding: 5px;
+  margin-right: 5px;
+  margin-bottom: 5px;
+  text-align: right;
+  background-color: #9ad3de;
+  border-radius: 10px;
+  font-size: 0.9em;
+  line-height: 2em;
+}
+
+.pc .money .is_paid {
+  text-align: center;
+}
+
+.pc .money .due_amount, .pc .money .hour_price {
+  margin-right: 0;
+}
+
+.pc .money .is_paid, .pc .money .hour_price {
+  width: calc(100% - 10px);
+  margin-bottom: 0;
+}
+
+.pc .money .is_paid::before, .pc .money .service_price::before, .pc .money .paid_amount::before, .pc .money .due_amount::before, .pc .money .hour_price::before {
+  display: block;
+  position: relative;
+  align-items: center;
+  justify-items: center;
+  top: -5px;
+  left: -5px;
+  width: 100%;
+  line-height: 2em;
+  font-size: 8pt;
+  text-align: center;
+  font-weight: bolder;
+  background-color: #0088c2;
+  color: #fff;
+  border-radius: 10px 10px 0 0;
+  padding: 5px;
+}
+
+.pc .money .is_paid::before {
+  content: "Payé?";
+}
+
+.pc .money .service_price::before {
+  content: "Service";
+}
+
+.pc .money .paid_amount::before {
+  content: "Payé";
+}
+
+.pc .money .due_amount::before {
+  content: "Restant";
+}
+
+.pc .money .hour_price::before {
+  content: "Prix/heure";
+}
+
+.pc button {
+  display: block;
+  width: 100%;
+  padding: 0.5em;
+  margin-top: 0.5em;
+  border-radius: 8px;
+  background-color: #e3e3e3;
+  color: #0088c2;
+  border: thin solid #89bdd3;
+  cursor: pointer;
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+.pc button:hover {
+  background-color: #c9c9c9;
+  box-shadow: 0 0 5px #0088c2;
+}
+
+.pc .links {
+  display: flex;
+  margin-top: 0.5em;
+}
+
+.pc .links .link {
+  padding: 16px 24px;
+  background-color: #c9c9c9;
+  margin-right: 4px;
+  border-radius: 8px 8px 0 0;
+  font-size: 9pt;
+  font-weight: bold;
+  color: #025a80;
+}
+
+.pc .links .link.selected {
+  color: #e3e3e3;
+  background-color: #025a80;
+}
+
+.pc .links .link a {
+  text-decoration: none;
+  color: #025a80;
+}
+
+.pc .links .link.selected a {
+  color: #e3e3e3;
+}
+
+.pc .links .link a:hover {
+  color: red;
+}
+
+.pc .links .link.selected a:hover {
+  color: white;
+}
+
+.pc .edit-link {
+  margin-top: 0.5em;
+}
+
+.pc .edit-link a {
+  display: block;
+  padding: 16px;
+  font-size: 1.2em;
+  text-align: center;
+  text-decoration: none;
+  border: thin solid #999;
+  color: #fff;
+  background-color: #333;
+  border-radius: 8px;
+}
+
+.pc .edit-link a:hover {
+  background-color: #fff;
+  color: #333;
+}
+
+#modal {
+  position: fixed;
+  display: none;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  z-index: 9999;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-dialog {
+  position: relative;
+  background-color: #fff;
+  margin: 16px auto;
+  padding: 0;
+  width: calc(100% - 32px);
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+  animation: animate-modal-dialog 0.4s;
+  border-radius: 16px;
+}
+
+@keyframes animate-modal-dialog {
+  from {
+    top: -400px;
+    opacity: 0;
+  }
+  to {
+    top: 0;
+    opacity: 1;
+  }
+}
+
+.modal-header, .modal-content {
+  padding: 2px 16px;
+  border-bottom: 1px solid #c9c9c9;
+}
+
+.modal-header .close {
+  float: right;
+  font-weight: bold;
+  font-size: 28px;
+  line-height: 70px;
+  cursor: pointer;
+}
+
+.modal-header .close:hover, .modal-header .close:focus {
+  color: red;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.column-1 {
+  width: 100%;
+  margin: 4px 0;
+}
+
+.column-2 {
+  width: calc(50% - 4px);
+  margin: 4px 0;
+  padding: 0 4px 0 0;
+}
+
+.column-3 {
+  width: calc(100% / 3 - 4px);
+  margin: 4px 0;
+  padding: 0 4px 0 0;
+}
+
+.row label {
+  display: block;
+  font-size: 0.7em;
+  color: #666;
+}
+
+label {
+  display: block;
+  font-size: 0.8em;
+  color: #333;
+}
+
+input, select {
+  display: block;
+  width: calc(100% - 10px);
+  border: 1px solid #333;
+  border-radius: 4px;
+  padding: 4px;
+  -ms-box-sizing: content-box;
+  -moz-box-sizing: content-box;
+  -webkit-box-sizing: content-box;
+  box-sizing: content-box;
+}
+
+input:focus {
+  border: 1px solid #0088c2;
+}
+
+#modal #startTime, #modal #endTime, #modal #reservedTime, #modal #defaultTime {
+  text-align: center;
+  text-align-last: center;
+}
+
+#modal #prixHeure, #modal #montantPaye {
+  text-align: right;
+}
+
+/* 
+#c9c9c9
+#e3e3e3
+#9ad3de
+#89bdd3 
+#0088c2
+*/
+
+@media screen and (min-width: 640px) {
+  .pc {
+    width: calc((100% - 3.5em - 8px) / 2);
+    margin-right: 0;
+  }
+  .pc:last-of-type {
+    margin-bottom: 0;
+  }
+}
+
+@media screen and (min-width: 960px) {
+  .pc {
+    width: calc((100% - 5em - 12px) / 3);
+  }
+}
+
+@media screen and (min-width: 1280px) {
+  .pc {
+    width: calc((100% - 6.5em - 16px) / 4);
+  }
+}
