@@ -151,6 +151,7 @@
   <script src="scripts/app.js"></script>
   <script>
     var prices = [0.0, 0.300, 0.500, 0.800, 1.000];
+    var affDB = new AffectationsDB();
     var tempsPostes = new Vue({
       el: '#content',
       data: {
@@ -159,6 +160,10 @@
       },
       mounted: function () {
         this.timer();
+        affDB.getAll()
+          .then(computers => {
+            this.computers = computers.map(computer => new ComputerTime(computer));
+          });
       },
       methods: {
         timer: function () {
@@ -213,6 +218,7 @@
 
           dialog.show(computer, function () {
             computer.setStopTime(Date.now());
+            affDB.insert(computer);
           });
         },
         continueTime: function (index) {
@@ -233,6 +239,7 @@
 
           dialog.show(computer, function () {
             computer.setStopTime(null);
+            affDB.insert(computer);
           });
         },
         createNew: function () {
@@ -245,6 +252,7 @@
           });
           this.computers.push(computer);
           this.visibleDetailsIndex = this.computers.length - 1;
+          affDB.insert(computer).then(id => computer.id = id);
         },
         startTimeChanged: function (computer, event) {
           var newValue = event.target.value;
@@ -253,6 +261,7 @@
             return;
           }
           computer.setStartTime(timeStamp);
+          affDB.insert(computer);
         },
         endTimeChanged: function (computer, event) {
           var newValue = event.target.value;
@@ -261,6 +270,7 @@
             return;
           }
           computer.setEndTime(timeStamp);
+          affDB.insert(computer);
         },
         reservedTimeChanged: function (computer, event) {
           var newValue = event.target.value;
@@ -269,6 +279,7 @@
             return;
           }
           computer.setReservedTime(minutes);
+          affDB.insert(computer);
         },
         setVisibleDetailsIndex: function (index) {
           if (this.visibleDetailsIndex == index) {
@@ -285,6 +296,7 @@
           }
           computer.quartersPrices[index] = newValue;
           computer.calcServicePrice();
+          affDB.insert(computer);
         },
         setPaidAmount: function (event, computer) {
           var newValue = event.target.value;
@@ -293,6 +305,7 @@
             return;
           }
           computer.setPaidAmount(newValue);
+          affDB.insert(computer);
         }
       }
     });

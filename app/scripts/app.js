@@ -106,6 +106,7 @@ function ComputerTime(config) {
     config = {};
   }
 
+  this.id = config.id || 0;
   this.computer_name = config.computer_name || 'Poste';
   this.setStartTime(config.startTime || Date.now());
   if (config.endTime) {
@@ -113,7 +114,7 @@ function ComputerTime(config) {
   } else if (config.reservedTime) {
     this.setReservedTime(config.reservedTime);
   }
-  this.stopTime = null;
+  this.stopTime = config.stopTime || null;
 
   this.paidAmount = config.paidAmount || 0;
   this.dueAmount = config.dueAmount || 0;
@@ -225,4 +226,28 @@ ComputerTime.prototype.getProgressPercent = function () {
     return 0;
   }
   return percent;
+};
+
+function AffectationsDB() {
+  this._db = idb.open('affectation_db', 1, function (db) {
+    if (!db.objectStoreNames.contains('affectations')) {
+      var os = db.createObjectStore('affectations', {keyPath: 'id', autoIncrement:true});
+    }
+  });
+}
+
+AffectationsDB.prototype.getAll = function () {
+  return this._db.then(function (db) {
+    return db.transaction('affectations')
+      .objectStore('affectations')
+      .getAll(null);
+  });
+};
+
+AffectationsDB.prototype.insert = function (computer) {
+  return this._db.then(function (db) {
+    return db.transaction('affectations', 'readwrite')
+      .objectStore('affectations')
+      .put(computer);
+  });
 };
